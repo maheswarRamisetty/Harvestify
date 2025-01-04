@@ -1,5 +1,3 @@
-# Importing essential libraries and modules
-
 from flask import Flask, render_template, request, Markup
 import numpy as np
 import pandas as pd
@@ -15,11 +13,6 @@ import torch
 from torchvision import transforms
 from PIL import Image
 from utils.model import ResNet9
-# ==============================================================================================
-
-# -------------------------LOADING THE TRAINED MODELS -----------------------------------------------
-
-# Loading plant disease classification model
 
 disease_classes = ['Apple___Apple_scab',
                    'Apple___Black_rot',
@@ -66,17 +59,10 @@ disease_model.load_state_dict(torch.load(
     disease_model_path, map_location=torch.device('cpu')))
 disease_model.eval()
 
-
-# Loading crop recommendation model
-
 crop_recommendation_model_path = 'models/RandomForest.pkl'
 crop_recommendation_model = pickle.load(
     open(crop_recommendation_model_path, 'rb'))
 
-
-# =========================================================================================
-
-# Custom functions for calculations
 
 
 def weather_fetch(city_name):
@@ -116,56 +102,15 @@ def predict_image(img, model=disease_model):
     img_t = transform(image)
     img_u = torch.unsqueeze(img_t, 0)
 
-    # Get predictions from model
     yb = model(img_u)
-    # Pick index with highest probability
     _, preds = torch.max(yb, dim=1)
     prediction = disease_classes[preds[0].item()]
-    # Retrieve the class label
-    return prediction
 
-# ===============================================================================================
-# ------------------------------------ FLASK APP -------------------------------------------------
+    return prediction
 
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
-
-# render home page
-
-
-@ app.route('/')
-def home():
-    title = 'Harvestify - Home'
-    return render_template('index.html', title=title)
-
-# render crop recommendation form page
-
-
-@ app.route('/crop-recommend')
-def crop_recommend():
-    title = 'Harvestify - Crop Recommendation'
-    return render_template('crop.html', title=title)
-
-# render fertilizer recommendation form page
-
-
-@ app.route('/fertilizer')
-def fertilizer_recommendation():
-    title = 'Harvestify - Fertilizer Suggestion'
-
-    return render_template('fertilizer.html', title=title)
-
-# render disease prediction input page
-
-
-
-
-# ===============================================================================================
-
-# RENDER PREDICTION PAGES
-
-# render crop recommendation result page
 
 
 
@@ -196,10 +141,6 @@ def crop_prediction():
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": "Invalid request"}), 400
-
-
-# render fertilizer recommendation result page
-
 
 
 # @app.route('/generate-pdf', methods=['POST'])
@@ -238,9 +179,6 @@ def generate_pdf(message,output):
 #     writer.write(f)
 
 # print(f"Password-protected PDF saved at: {protected_output_path}")
-
-
-
 
 
 @ app.route('/fertilizer-predict', methods=['POST'])
@@ -293,7 +231,6 @@ def fert_recommend():
     return jsonify({"success": True,'recommendation': recommendation })
 
 
-# render disease prediction result page
 
 
 @app.route('/disease-predict', methods=['GET', 'POST'])
@@ -333,6 +270,5 @@ def disease_prediction():
     return jsonify({"message": "Use POST method to predict disease"}), 405
 
 
-# ===============================================================================================
 if __name__ == '__main__':
     app.run(debug=True)
