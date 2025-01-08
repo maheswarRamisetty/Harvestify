@@ -1,10 +1,10 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { blogPosts } from './blogData'; // Assuming blog data is imported from a data file
+import { blogPosts } from './blogData';
 
 const BlogDetail = () => {
-  const { id } = useParams<{ id: string }>(); // Get the blog id from the URL params
-  const blogPost = blogPosts.find(post => post.id.toString() === id); // Find the blog post using the id
+  const { id } = useParams<{ id: string }>(); 
+  const blogPost = blogPosts.find(post => post.id.toString() === id); 
 
   if (!blogPost) {
     return <div>Blog post not found</div>;
@@ -21,7 +21,8 @@ const BlogDetail = () => {
             className="w-full md:w-2/3 h-64 object-cover"
           />
         </div>
-        <p className="text-lg text-gray-800">{blogPost.content}</p> {/* Assuming content is available */}
+        <div
+         dangerouslySetInnerHTML={{ __html: blogPost.content }} />
       </div>
     </section>
   );
